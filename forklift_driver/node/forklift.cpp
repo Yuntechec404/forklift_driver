@@ -162,7 +162,7 @@ void SubscribeAndPublish::PublishOdom()
     delta_th = angular_z * dt;
     delta_x = linear_x * cos(th + delta_th / 2) * dt;
     delta_y = linear_x * sin(th + delta_th / 2) * dt;
-
+    // 避免在車子停止不動時誤差累積
     if (fabs(delta_x) < 1e-6)
     {
         delta_x = 0.0f;
