@@ -1,4 +1,9 @@
 # forklift_driver
+## Serial port setting
+> $ sudo chmod 777 /dev/ttyUSBx
+
+## 編譯
+> $ catkin_make
 
 ## 啟動底盤
 > $ roslaunch forklift_driver forklift_driver.launch
