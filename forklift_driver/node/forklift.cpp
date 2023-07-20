@@ -67,23 +67,27 @@ SubscribeAndPublish::SubscribeAndPublish(ros::NodeHandle *nh, ros::NodeHandle *p
     pub_forklift = new ros::Publisher(nh->advertise<forklift_msg::meteorcar>(topic_forklift_pose, 10));
     sub_cmd_vel = new ros::Subscriber(nh->subscribe(topic_cmd_vel, 1, &SubscribeAndPublish::CmdVelCB, this));
     sub_cmd_fork = new ros::Subscriber(nh->subscribe(topic_cmd_fork, 1, &SubscribeAndPublish::CmdForkCB, this));
-    
+
     // Initialize variable
     wheel_angle = wheel_speed = fork_velocity = 0.0f; // :TODO float wheel_speed(0.0)會出現錯誤
     r = new ros::Rate(rate);
     last_time = current_time = last_cmdvelcb_time = last_cmdforkcb_time = ros::Time::now();
 
-    //initialize fork
-    
+    // initialize fork
+
     while (ros::ok() && init_fork_flag && stm32->Data14 < 1.0f)
     {
         stm32->read_data();
         stm32->send_data(1, 0, 0, 0, 2500, 0, 0, 0, 0, 0, 0, 0); // 电机(启动/停止)(1/0)，前轮速度 m/s，0，前轮转角 °/s . 起重电机PWM，范围-3600 ~ +3600 （PWM值）
         r->sleep();
     }
-    (init_fork_flag) 
-    ? printf("\x1B[0;32m""Forklift fork initialization complete. Forklift is now ready to be activated.\n""\x1B[0m")
-    : printf("\x1B[0;32m""Forklift is already active.\n""\x1B[0m");
+    (init_fork_flag)
+        ? printf("\x1B[0;32m"
+                 "Forklift fork initialization complete. Forklift is now ready to be activated.\n"
+                 "\x1B[0m")
+        : printf("\x1B[0;32m"
+                 "Forklift is already active.\n"
+                 "\x1B[0m");
 
     // main loop
     while (ros::ok())
@@ -129,12 +133,12 @@ void SubscribeAndPublish::CmdVelCB(const geometry_msgs::Twist &msg) // 參考cmd
     wheel_angle *= 180 / M_PI;           // 轉換為角度
 };
 
-void SubscribeAndPublish::CmdForkCB(const forklift_msg::meteorcar &msg)// pwm range -3600 ~ +3600
+void SubscribeAndPublish::CmdForkCB(const forklift_msg::meteorcar &msg) // pwm range -3600 ~ +3600
 {
     last_cmdforkcb_time = current_time;
-    fork_velocity = -msg.fork_velocity; //fork_velocity上升為負，下降為正，因為stm32的起重電機PWM是負值上升，正值下降
+    fork_velocity = -msg.fork_velocity; // fork_velocity上升為負，下降為正，因為stm32的起重電機PWM是負值上升，正值下降
     // 上限3600，下限1000
-    if(abs(fork_velocity) > 3600)
+    if (abs(fork_velocity) > 3600)
         fork_velocity = 3600 * Sign(fork_velocity);
     else if (abs(fork_velocity) < 1000 && abs(fork_velocity) > 1)
         fork_velocity = 1000 * Sign(fork_velocity);
@@ -151,19 +155,38 @@ void SubscribeAndPublish::PublishOdom()
     static float x, y, th, linear_x, angular_z, delta_th, delta_x, delta_y, dt;
 
     linear_x = stm32->Data2 * cos(stm32->Data3 * M_PI / 180);
-    (use_imu_flag) ? angular_z = stm32->angular_velocity_z :                     // 使用imu計匴角速度
+    (use_imu_flag) ? angular_z = stm32->angular_velocity_z :                    // 使用imu計算角速度
         angular_z = stm32->Data2 * sin(stm32->Data3 * M_PI / 180) / wheel_base; // 使用里程計計算角速度
 
     dt = (current_time - last_time).toSec();
     delta_th = angular_z * dt;
-    delta_x = linear_x * cos(th + delta_th / 2);
-    delta_y = linear_x * sin(th + delta_th / 2);
+    delta_x = linear_x * cos(th + delta_th / 2) * dt;
+    delta_y = linear_x * sin(th + delta_th / 2) * dt;
 
+    if (fabs(delta_x) < 1e-6)
+    {
+        delta_x = 0.0f;
+    }
+    if (fabs(delta_y) < 1e-6)
+    {
+        delta_y = 0.0f;
+    }
+    if (fabs(delta_th) < 1e-5)
+    {
+        delta_th = 0.0f;
+    }
     x += delta_x;
     y += delta_y;
     th += delta_th;
+    // Debug
+    // cout << "dt: " << dt << endl
+    //      << endl;
+    // cout << "delta_x: " << delta_x << " | delta_y: " << delta_y << " | delta_th: " << delta_th << endl
+    //      << endl;
+    // cout << "x: " << x << " | y: " << y << " | th: " << th << endl
+    //      << endl;
 
-    th_quat = tf::createQuaternionMsgFromYaw(th); // 歐拉腳轉換為四元數
+    th_quat = tf::createQuaternionMsgFromYaw(th); // 歐拉角轉換為四元數
 
     odom.header.stamp = current_time;
     odom.header.frame_id = topic_odom;
@@ -245,9 +268,9 @@ void SubscribeAndPublish::PublishForklift()
 
 int main(int argc, char **argv)
 {
-    ros::init(argc, argv, "forklift"); // 先初始化ROS node，在ROS Master上註冊node
-    ros::NodeHandle nh, priv_nh("~");  // 接下來建立ROS node的handle，用來與ROS Master溝通
-    STM32 stm32;                       // 再建立與stm32溝通的物件，建構式會初始化串口，解構式會關閉串口，
+    ros::init(argc, argv, "forklift");                    // 先初始化ROS node，在ROS Master上註冊node
+    ros::NodeHandle nh, priv_nh("~");                     // 接下來建立ROS node的handle，用來與ROS Master溝通
+    STM32 stm32;                                          // 再建立與stm32溝通的物件，建構式會初始化串口，解構式會關閉串口，
     SubscribeAndPublish SAP_object(&nh, &priv_nh, stm32); // 最後再初始ROS subccriber&publisher這些與其他node的接口，並使用call by address, reference將stm32與nh物件傳入
     return 0;
 }
