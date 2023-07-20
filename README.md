@@ -5,7 +5,7 @@
 
 ## 底盤設定
 **src/forklift_driver/launch/forklift_driver.launch**
-```yaml
+```xml
 <launch>  
 	<node pkg="forklift_driver" name="forklift_driver" type="forklift_driver" output="screen" >
 	<!-- launch-prefix="gdb -ex  args" --><!-- Debug option -->
