@@ -23,11 +23,13 @@ STM32::STM32()
     {
         return ;
     }
+    sp.flush();
     for (uint8_t j = 0; j < 3; j++) // clear buff
         send_data(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 }
 STM32::~STM32()
 {
+    sp.flush();
     for (uint8_t j = 0; j < 3; j++) // clear buff
         send_data(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
     // 關閉串口
@@ -37,6 +39,7 @@ STM32::~STM32()
 
 void STM32::send_data(float data1, float data2, float data3, float data4, float data5, float data6, float data7, float data8, float data9, float data10, float data11, float data12)
 {
+    sp.flush();
     static uint8_t tbuf[53]{0};  //send data buffer
     // printf("%f, %f, %f, %f, %f\n", data1, data2, data3, data4, data5);
     isnan(data4) ? data4 = 0.0 : data4 = data4;
@@ -138,6 +141,7 @@ void STM32::send_data(float data1, float data2, float data3, float data4, float 
 };
 void STM32::read_data()
 {
+    sp.flush();
     static size_t n;          //緩衝區內字節數
     static uint8_t buffer[65]{0};
     n = sp.available(); // 獲取緩衝區內字節數
