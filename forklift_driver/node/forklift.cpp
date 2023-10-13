@@ -118,28 +118,29 @@ SubscribeAndPublish::~SubscribeAndPublish()
 void SubscribeAndPublish::CmdVelCB(const geometry_msgs::Twist &msg) // 參考cmd_vel_to_ackermann_drive.py
 {
     static float r; // r = 旋轉半徑
-    static float wheel_angle_last(0.0f), wheel_speed_last(0.0f);
+    static double wheel_angle_last(0.0), wheel_speed_last(0.0);
     last_cmdvelcb_time = ros::Time::now();
-    wheel_speed = msg.linear.x;                  // 速度v = 圓周運動速度
-    if (isnan(r = msg.linear.x / msg.angular.z)) // 判斷旋轉半徑是否為無限大(直走)
+    wheel_speed = msg.linear.x;                                    // 速度v = 圓周運動速度
+    if (fabs(msg.linear.x) <= 0.0001 && fabs(msg.angular.z) <= 0.0001) // 判斷是否停止，如果是的話wheel_speed為0，但wheel_angle維持不變
+    {
+        wheel_speed = 0.0;
+        wheel_angle = wheel_angle_last;
+        return;
+    }
+    else if (isnan(r = msg.linear.x / msg.angular.z)) // 判斷旋轉半徑是否為無限大(直走)
         r = INFINITY;
     else if (abs(r) < wheel_base) // 判斷旋轉半徑是否小於wheel_base(自轉)
     {
         wheel_speed = msg.angular.z * wheel_base;
         r = 0.0;
     }
-    else if (msg.linear.x == 0.0f && msg.angular.z == 0.0f){//判斷是否停止，如果是的話wheel_speed為0，但wheel_angle維持不變
-        wheel_speed = 0.0f;
-        wheel_angle = wheel_angle_last;
-        return;
-    } 
     else
         r = wheel_speed / msg.angular.z; // 旋轉半徑r = 速度v / 角速度w
     wheel_angle = atan(wheel_base / r);  // theta = arctan(前輪到兩後輪中心軸距wheel_base / 旋轉半徑r)
     wheel_angle *= 180 / M_PI;           // 轉換為角度
-    
-    wheel_angle_last = wheel_angle;      // 記錄上一次的角度
-    wheel_speed_last = wheel_speed;      // 記錄上一次的速度
+
+    wheel_angle_last = wheel_angle; // 記錄上一次的角度
+    wheel_speed_last = wheel_speed; // 記錄上一次的速度
 };
 
 void SubscribeAndPublish::CmdForkCB(const forklift_msg::meteorcar &msg) // pwm range -3600 ~ +3600
