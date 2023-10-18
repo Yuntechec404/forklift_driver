@@ -95,7 +95,11 @@ SubscribeAndPublish::SubscribeAndPublish(ros::NodeHandle *nh, ros::NodeHandle *p
         current_time = ros::Time::now();
         ros::spinOnce();
         if ((current_time - last_cmdvelcb_time).toSec() > timeout)
+        {
             wheel_speed = 0.0f;
+            wheel_angle = 0.0f;
+        }
+
         if ((current_time - last_cmdforkcb_time).toSec() > timeout)
             fork_velocity = 0.0f;
 
@@ -120,7 +124,7 @@ void SubscribeAndPublish::CmdVelCB(const geometry_msgs::Twist &msg) // 參考cmd
     static float r; // r = 旋轉半徑
     static double wheel_angle_last(0.0), wheel_speed_last(0.0);
     last_cmdvelcb_time = ros::Time::now();
-    wheel_speed = msg.linear.x;                                    // 速度v = 圓周運動速度
+    wheel_speed = msg.linear.x;                                        // 速度v = 圓周運動速度
     if (fabs(msg.linear.x) <= 0.0001 && fabs(msg.angular.z) <= 0.0001) // 判斷是否停止，如果是的話wheel_speed為0，但wheel_angle維持不變
     {
         wheel_speed = 0.0;
