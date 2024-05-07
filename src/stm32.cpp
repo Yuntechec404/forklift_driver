@@ -11,13 +11,13 @@ STM32::STM32()
     }
     catch (serial::IOException &e)
     {
-        ROS_ERROR_STREAM("Unable to open port.");
+        RCLCPP_ERROR(rclcpp::get_logger("rclcpp"), "Unable to open port.");
         return ;
     }
 
     if (sp.isOpen()) // 判斷串口是否打開
     {
-        ROS_INFO_STREAM("\x1B[0;32m""/dev/ttyUSB0 is opened.""\x1B[0m");
+        RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "\x1B[0;32m""/dev/ttyUSB0 is opened.""\x1B[0m");
     }
     else
     {
@@ -34,7 +34,7 @@ STM32::~STM32()
         send_data(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
     // 關閉串口
     sp.close();
-    ROS_WARN("STM32 closed");
+    RCLCPP_WARN(rclcpp::get_logger("rclcpp"), "STM32 closed");
 }
 
 void STM32::send_data(float data1, float data2, float data3, float data4, float data5, float data6, float data7, float data8, float data9, float data10, float data11, float data12)
@@ -42,7 +42,7 @@ void STM32::send_data(float data1, float data2, float data3, float data4, float 
     sp.flush();
     static uint8_t tbuf[53]{0};  //send data buffer
     // printf("%f, %f, %f, %f, %f\n", data1, data2, data3, data4, data5);
-    isnan(data4) ? data4 = 0.0 : data4 = data4;
+    std::isnan(data4) ? data4 = 0.0 : data4 = data4;
     unsigned char *p;
     p = (unsigned char *)&data1;
     tbuf[4] = (unsigned char)(*(p + 3));
@@ -136,7 +136,7 @@ void STM32::send_data(float data1, float data2, float data3, float data4, float 
     }
     catch (serial::IOException &e)
     {
-        ROS_ERROR_STREAM("Unable to send data through serial port"); // 如果发送数据失败，打印错误信息
+        RCLCPP_ERROR(rclcpp::get_logger("rclcpp"), "Unable to send data through serial port"); // 如果发送数据失败，打印错误信息
     }
 };
 void STM32::read_data()
@@ -186,10 +186,10 @@ void STM32::read_data()
         if (Data11 / 100 < 23.5 && Data11 != 0.0 and once_flag == true)
         {
             once_flag = false;
-            ROS_WARN("low voltage  %f vol", Data11 / 100.0f);
+            RCLCPP_WARN(rclcpp::get_logger("rclcpp"), "low voltage  %f vol", Data11 / 100.0f);
             if (Data11 / 100 < 5)
             {
-                ROS_ERROR("PLEASE OPEN \"POWER SUPPLY\" before CONNECT USB!!!");
+                RCLCPP_ERROR(rclcpp::get_logger("rclcpp"), "PLEASE OPEN \"POWER SUPPLY\" before CONNECT USB!!!");
             }
         }
     }
