@@ -1,7 +1,7 @@
 #ifndef _STM32_H 
 #define _STM32_H 
+#include "ros/ros.h"
 #include <serial/serial.h>
-#include <rclcpp/rclcpp.hpp>
 typedef unsigned char byte;
 class STM32
 {
