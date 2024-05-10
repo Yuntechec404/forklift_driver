@@ -60,4 +60,4 @@ anything else : stop
 
 CTRL-C to quit
 ```
-⚠️ 請按 'z'  decrease max speeds by 10% 不然車子會暴衝
+⚠️ 請按 'z'  decrease max speeds by 10%  將每秒的線速度與角速度降到 0.1~0.3，不然車子會暴衝
