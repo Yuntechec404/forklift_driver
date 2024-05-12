@@ -7,6 +7,9 @@
 安裝與編譯非官方版本的 Serial 庫，因為官方尚未更新 ROS2 分支，未來需要關注此像任務進展。
 > $ git clone https://github.com/abdullahdangac/serial.git -b ros2
 
+## 下載
+> $ git clone https://github.com/Yuntechec404/forklift_driver.git -b humble
+
 ## 編譯
 > $ colcon build
 
