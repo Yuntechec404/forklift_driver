@@ -5,16 +5,19 @@
 
 ## Dependency
 安裝與編譯非官方版本的 Serial 庫，因為官方尚未更新 ROS2 分支，未來需要關注此項任務進展。
-> $ git clone https://github.com/abdullahdangac/serial.git -b ros2
+> ~/path/to/workspace/src$ git clone https://github.com/abdullahdangac/serial.git -b ros2
 
 ## 下載
-> $ git clone https://github.com/Yuntechec404/forklift_driver.git -b humble
+> ~/path/to/workspace/src$ git clone https://github.com/Yuntechec404/forklift_driver.git -b humble
 
 ## 編譯
-> $ colcon build
+> ~/path/to/workspace$ colcon build
+
+## 環境變數
+> ~/path/to/workspace$ source install/setup.bash
 
 ## 啟動底盤
-> $ ros2 launch forklift_driver forklift_driver.launch
+> ~/path/to/workspace$ ros2 launch forklift_driver forklift_driver.launch
 
 ## 底盤設定
 **src/forklift_driver/launch/forklift_driver.launch**
