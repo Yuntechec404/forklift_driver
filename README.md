@@ -1,12 +1,21 @@
 # ROS2 humble forklift_driver
 
-## 解除安裝 ubuntu22.04 預設的 brltty 
-> $ sudo apt remove brltty
 
+## 解除安裝 ubuntu22.04 預設的 brltty 
+插入設備時 dev資料夾出現後立刻消失（USB設備被擋）
+> $ sudo apt remove brltty
 P.S. BRLTTY is a background process (daemon) 
+
+## 檢查設備名稱
+> $ cd /dev/
+> /dev$ ls | grep ttyU
+OUT ttyUSB0
 
 ## Serial port setting
 > $ sudo chmod 777 /dev/ttyUSBx
+
+## 查看設備權限
+> $ ls -all /dev
 
 ## Dependency
 安裝與編譯非官方版本的 Serial 庫，因為官方尚未更新 ROS2 分支，未來需要關注此項任務進展。
