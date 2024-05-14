@@ -8,17 +8,22 @@ ERR:插入設備時 dev資料夾出現後立刻消失（USB設備被擋）
 P.S. BRLTTY is a background process (daemon) 
 
 ## 檢查設備名稱
-> $ cd /dev/
-> /dev$ ls | grep ttyU
+```
+$ cd /dev/
+/dev$ ls | grep ttyU
+```
 
 OUTPUT：ttyUSB0
 
 ## Serial port setting
-> $ sudo chmod 777 /dev/ttyUSB0
+```
+$ sudo chmod 777 /dev/ttyUSB0
+```
 
 ## 查看設備權限
-> $ ls -all /dev
-
+```
+$ ls -all /dev
+```
 
 crwxrwxrwx   1 root dialout 188,     0 May 14 13:21 ttyUSB0
 
@@ -28,20 +33,25 @@ rwxrwxrwx:前三個字元表示擁有者的權限，中間三個字元表示所�
 
 ## Dependency
 安裝與編譯非官方版本的 Serial 庫，因為官方尚未更新 ROS2 分支，未來需要關注此項任務進展。
-> ~/path/to/workspace/src$ git clone https://github.com/abdullahdangac/serial.git -b ros2
-
+```
+~/path/to/workspace/src$ git clone https://github.com/abdullahdangac/serial.git -b ros2
+```
 ## 下載
-> ~/path/to/workspace/src$ git clone https://github.com/Yuntechec404/forklift_driver.git -b humble
-
+```
+~/path/to/workspace/src$ git clone https://github.com/Yuntechec404/forklift_driver.git -b humble
+```
 ## 編譯
-> ~/path/to/workspace$ colcon build
-
+```
+~/path/to/workspace$ colcon build
+```
 ## 環境變數
-> ~/path/to/workspace$ source install/setup.bash
-
+```
+~/path/to/workspace$ source install/setup.bash
+```
 ## 啟動底盤
-> ~/path/to/workspace$ ros2 launch forklift_driver forklift_driver.launch
-
+```
+~/path/to/workspace$ ros2 launch forklift_driver forklift_driver.launch
+```
 ## 底盤設定
 **src/forklift_driver/launch/forklift_driver.launch**
 ```xml
@@ -72,11 +82,13 @@ rwxrwxrwx:前三個字元表示擁有者的權限，中間三個字元表示所�
 # 鍵盤控制
 
 1. 安裝 teleop-twist-keyboard
-> sudo apt install ros-humble-teleop-twist-keyboard
-
+```
+sudo apt install ros-humble-teleop-twist-keyboard
+```
 2. 啟動鍵盤控制
-> ros2 run teleop_twist_keyboard teleop_twist_keyboard
-
+```
+ros2 run teleop_twist_keyboard teleop_twist_keyboard
+```
 
 ```
 Reading from the keyboard  and Publishing to Twist!
