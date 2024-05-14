@@ -1,5 +1,10 @@
 # ROS2 humble forklift_driver
 
+# 解除安裝 ubuntu22.04 預設的 brltty 
+> $ sudo apt remove brltty
+
+P.S. BRLTTY is a background process (daemon) 
+
 ## Serial port setting
 > $ sudo chmod 777 /dev/ttyUSBx
 
