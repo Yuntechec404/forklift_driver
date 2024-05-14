@@ -12,7 +12,7 @@ P.S. BRLTTY is a background process (daemon)
 > OUTPUT：ttyUSB0
 
 ## Serial port setting
-> $ sudo chmod 777 /dev/ttyUSBx
+> $ sudo chmod 777 /dev/ttyUSB0
 
 ## 查看設備權限
 > $ ls -all /dev
