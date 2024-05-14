@@ -11,9 +11,8 @@ P.S. BRLTTY is a background process (daemon)
 > $ cd /dev/
 > /dev$ ls | grep ttyU
 
-```
 OUTPUT：ttyUSB0
-```
+
 ## Serial port setting
 > $ sudo chmod 777 /dev/ttyUSB0
 
