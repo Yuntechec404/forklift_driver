@@ -2,14 +2,14 @@
 
 
 ## 解除安裝 ubuntu22.04 預設的 brltty 
-插入設備時 dev資料夾出現後立刻消失（USB設備被擋）
+ERR:插入設備時 dev資料夾出現後立刻消失（USB設備被擋）
 > $ sudo apt remove brltty
 P.S. BRLTTY is a background process (daemon) 
 
 ## 檢查設備名稱
 > $ cd /dev/
 > /dev$ ls | grep ttyU
-OUT ttyUSB0
+> OUTPUT：ttyUSB0
 
 ## Serial port setting
 > $ sudo chmod 777 /dev/ttyUSBx
