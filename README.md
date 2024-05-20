@@ -79,7 +79,7 @@ rwxrwxrwx:前三個字元表示擁有者的權限，中間三個字元表示所�
 </launch>
 ```
 
-# 鍵盤控制
+# 鍵盤控制 cmd_vel
 
 1. 安裝 teleop-twist-keyboard
 ```
@@ -106,3 +106,29 @@ anything else : stop
 CTRL-C to quit
 ```
 ⚠️ 請按 'z'  decrease max speeds by 10%  將每秒的線速度與角速度降到 0.1~0.3，不然車子會暴衝
+
+# 鍵盤控制 cmd_fork
+
+1. 環境變數
+```
+~/path/to/workspace$ source install/setup.bash
+```
+2. 啟動鍵盤控制
+```
+~/path/to/workspace$ ros2 run forklift_driver forklift_control
+```
+
+```
+Reading from the keyboard  and Publishing to cmd_fork!
+---------------------------
+t : up (+z)
+b : down (-z)
+g : stop (z)
+q : speeds 1200
+a : speeds 2400
+z : speeds 3600
+
+-----------------------
+CTRL-C to quit
+```
+⚠️ 後續會將牙差與車體控制合併，立智寫的如有BUG自行修改
