@@ -97,6 +97,7 @@ class ForkLiftControl : public rclcpp::Node
             publisher_->publish(message);
           }
           std::cout << "fork_velocity" << vel << std::endl;
+
           // 恢復原來的終端設置
           restoreTerminalSettings(settings);
         }
