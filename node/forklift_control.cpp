@@ -1,7 +1,7 @@
 #include <chrono>
 #include <memory>
 #include "rclcpp/rclcpp.hpp"
-#include <forklift_driver/msg/meteorcar.hpp>
+#include <forklift_driver/msg/meteorcar.hpp>  
 
 #ifdef _WIN32
 #include <conio.h>
@@ -14,7 +14,9 @@
 auto msg = "t : up (+z)\n"
           "b : down (-z)\n"
           "g : stop (z)\n"
-          "q/z : increase/decrease max speeds by 10%\n";
+          "q : speeds 1200\n"
+          "a : speeds 2400\n"
+          "z : speeds 3600\n";
 
 // 定義保存終端設置的函數，返回終端設置
 termios saveTerminalSettings() {
@@ -46,68 +48,77 @@ char getKey(termios settings) {
 
     char key;
     std::cin >> key;
-
-    // 恢復原來的終端設置
-    tcsetattr(STDIN_FILENO, TCSANOW, &settings);
-
     return key;
   #endif
 }
+char key;
 termios settings;
 class ForkLiftControl : public rclcpp::Node
 {
   public:
-    
     ForkLiftControl(): Node("teleop_forklift_keyboard")
     {
-      publisher_ = this->create_publisher<forklift_driver::msg::Meteorcar>("/cmd_fork", 5);
-    }
+      try{
+        // 保存終端設置
+        settings = saveTerminalSettings();
 
+        auto publisher_ = this->create_publisher<forklift_driver::msg::Meteorcar>("/cmd_fork", 5);
+        auto vel = 1200.0f;
+        
+        auto message = forklift_driver::msg::Meteorcar();
+        while (rclcpp::ok()){
+          
+          std::cout << msg << std::endl;
+          std::cout << "-----------------------" << std::endl;
+          key = getKey(settings);
+
+          if(key == 'q' || key == 'Q'){
+            vel = 1200.0f;
+          }
+          else if(key == 'a' || key == 'A'){
+            vel = 2400.0f;
+          }
+          else if (key == 'z' || key == 'Z')
+          {
+            vel = 3600.0f;
+          }
+
+          if(key == 'g' || key == 'G'){
+            message.fork_velocity = 0.0f;
+            publisher_->publish(message);
+          }
+          else if(key == 't' || key == 'T'){
+            message.fork_velocity = vel;
+            publisher_->publish(message);
+          }
+          else if (key == 'b' || key == 'B')
+          {
+            message.fork_velocity = -vel;
+            publisher_->publish(message);
+          }
+          std::cout << "fork_velocity" << vel << std::endl;
+          // 恢復原來的終端設置
+          restoreTerminalSettings(settings);
+        }
+      }
+      catch (const std::exception& e) {
+        std::cerr << e.what() << std::endl;
+        // 恢復原來的終端設置
+        restoreTerminalSettings(settings);
+      }
+    }
   private:
-    void publish_message()
-    {
-      auto message = forklift_driver::msg::Meteorcar();
-      char key = getKey(settings);
-      if(key == 'g' || key == 'G'){
-        message.fork_position = 0.0f;
-        std::cout << "fork_position" << message.fork_position << std::endl;
-      }
-      else if(key == 't' || key == 'T'){
-        message.fork_position += 10.0f;
-        std::cout << "fork_position" << message.fork_position << std::endl;
-      }
-      else if (key == 'b' || key == 'B')
-      {
-        message.fork_position -= 10.0f;
-        std::cout << "fork_position" << message.fork_position << std::endl;
-      }
 
-      if(key == 'q' || key == 'Q'){
-        message.fork_velocity *= 1.1f;
-      std::cout << "fork_velocity" << message.fork_velocity << std::endl;
-      }
-      else if(key == 'z' || key == 'Z'){
-        message.fork_velocity *= 0.1f;
-        std::cout << "fork_velocity" << message.fork_velocity << std::endl;
-      }
-
-      publisher_->publish(message);
-    }
     // rclcpp::TimerBase::SharedPtr timer_;
     rclcpp::Publisher<forklift_driver::msg::Meteorcar>::SharedPtr publisher_;
 };
 
 int main(int argc, char * argv[])
 {
-  // 保存終端設置
-  settings = saveTerminalSettings();
-  std::cout << msg << std::endl;
 
   rclcpp::init(argc, argv);
   rclcpp::spin(std::make_shared<ForkLiftControl>());
 
-  // 恢復原來的終端設置
-  restoreTerminalSettings(settings);
   rclcpp::shutdown();
   return 0;
 }
