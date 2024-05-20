@@ -38,13 +38,26 @@ ament_target_dependencies(forklift_drivers
  tf2
  serial
 )
+add_executable(forklift_control node/forklift_control.cpp)
+ament_target_dependencies(forklift_control
+ rclcpp 
+ std_msgs
+ geometry_msgs
+ nav_msgs
+ sensor_msgs
+ tf2_ros
+ tf2
+ serial
+)
 rosidl_get_typesupport_target(cpp_typesupport_target
   ${PROJECT_NAME} rosidl_typesupport_cpp)
 
 target_link_libraries(forklift_drivers "${cpp_typesupport_target}")
+target_link_libraries(forklift_control "${cpp_typesupport_target}")
 install(
   TARGETS
   forklift_drivers
+  forklift_control
   DESTINATION lib/${PROJECT_NAME}
 )
 
