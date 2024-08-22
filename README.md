@@ -33,8 +33,14 @@ rwxrwxrwx:前三個字元表示擁有者的權限，中間三個字元表示所�
 
 ## Dependency
 安裝與編譯非官方版本的 Serial 庫，因為官方尚未更新 ROS2 分支，未來需要關注此項任務進展。
+此為第三方開發
 ```
-~/path/to/workspace/src$ git clone https://github.com/abdullahdangac/serial.git -b ros2
+~/path/to/workspace/src$ git clone https://github.com/RoverRobotics-forks/serial-ros2.git
+~/path/to/workspace/src$ cd serial-ros2
+~/path/to/workspace/src/serial-ros2$ make
+~/path/to/workspace/src/serial-ros2$ make test
+~/path/to/workspace/src/serial-ros2$ cd build
+~/path/to/workspace/src/serial-ros2/build$ make install
 ```
 ## 下載
 ```
