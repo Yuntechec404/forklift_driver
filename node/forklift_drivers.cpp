@@ -19,12 +19,13 @@
 class ForkLiftDriver : public rclcpp::Node
 {
   // publisher & subscriber declare
-  std::string topic_odom, topic_imu, topic_forklift_pose, topic_cmd_vel, topic_cmd_fork;
+  std::string topic_odom, topic_imu, topic_forklift_pose, topic_cmd_vel, topic_cmd_fork ,lidar_tf_name;
   rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr pub_odom;
   rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr pub_imu;
   rclcpp::Publisher<forklift_driver::msg::Meteorcar>::SharedPtr pub_forklift;
   rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr sub_cmd_vel;
   rclcpp::Subscription<forklift_driver::msg::Meteorcar>::SharedPtr sub_cmd_fork;
+  std::vector<double> lidar_tf_dist;
 
   // forklift variable declare
   float wheel_base, wheel_angle, wheel_speed, fork_velocity, theta_bias;
@@ -38,6 +39,7 @@ class ForkLiftDriver : public rclcpp::Node
   void CmdVelCB(const geometry_msgs::msg::Twist &msg);
   void CmdForkCB(const forklift_driver::msg::Meteorcar &msg);
   void PublishOdom();
+  void PublishLidarTF();
   void PublishImu();
   void PublishForklift();
   void broadcastTransform(const geometry_msgs::msg::Transform &transform, const std::string &child_frame_id,
@@ -64,6 +66,8 @@ void ForkLiftDriver::spin()
   use_imu_flag = this->declare_parameter<bool>("use_imu_flag", false);
   odom_tf_flag = this->declare_parameter<bool>("odom_tf_flag", false);
   init_fork_flag = this->declare_parameter<bool>("init_fork_flag", false);
+  lidar_tf_dist = this->declare_parameter<std::vector<double>>("lidar_tf_dist", {0.0, 0.0, 0.0, 0.0, 0.0, 0.0});
+  lidar_tf_name = this->declare_parameter<std::string>("lidar_tf_name", "velodyne");
 
   topic_cmd_vel = this->declare_parameter<std::string>("topic_cmd_vel", "/cmd_vel");
   topic_cmd_fork = this->declare_parameter<std::string>("topic_cmd_fork", "/cmd_fork");
@@ -266,8 +270,31 @@ void ForkLiftDriver::PublishOdom()
     odom_trans.transform.rotation.z = th_quat.z();
     odom_trans.transform.rotation.w = th_quat.w();
     odom_broadcaster->sendTransform(odom_trans);
+    PublishLidarTF();
   }
 };
+
+void ForkLiftDriver::PublishLidarTF()
+{
+  static geometry_msgs::msg::TransformStamped lidar_trans;
+  static auto lidar_broadcaster = std::make_unique<tf2_ros::TransformBroadcaster>(*this);
+  static float x, y, th, linear_x, angular_z, delta_th, delta_x, delta_y, dt;
+  lidar_trans.header.stamp = current_time;
+  lidar_trans.header.frame_id = "base_link";
+  lidar_trans.child_frame_id = lidar_tf_name;
+
+  lidar_trans.transform.translation.x = lidar_tf_dist[0];
+  lidar_trans.transform.translation.y = lidar_tf_dist[1];
+  lidar_trans.transform.translation.z = lidar_tf_dist[2];
+
+  static tf2::Quaternion lidar_th_quat;
+  lidar_th_quat.setRPY(lidar_tf_dist[3], lidar_tf_dist[4], lidar_tf_dist[5]);
+  lidar_trans.transform.rotation.x = lidar_th_quat.x();
+  lidar_trans.transform.rotation.y = lidar_th_quat.y();
+  lidar_trans.transform.rotation.z = lidar_th_quat.z();
+  lidar_trans.transform.rotation.w = lidar_th_quat.w();
+  lidar_broadcaster->sendTransform(lidar_trans);
+}
 
 void ForkLiftDriver::PublishImu()
 {
