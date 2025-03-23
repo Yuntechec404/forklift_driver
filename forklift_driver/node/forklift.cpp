@@ -272,7 +272,7 @@ void SubscribeAndPublish::PublishForklift()
     forklift_msg.wheel_angle = stm32->Data3;
 
     dt = (current_time - last_time).toSec();
-    forklift_msg.fork_velocity = stm32->Data13 / 30 / 60 * 2;
+    forklift_msg.fork_velocity = stm32->Data13 / (30.0 * 60.0 );
     forklift_msg.fork_position -= forklift_msg.fork_velocity * dt;
 
     (stm32->Data14 == true /*限位開關被壓住*/) ? forklift_msg.fork_position = 0.0 : forklift_msg.fork_position = forklift_msg.fork_position;
